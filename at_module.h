@@ -11,8 +11,6 @@
 #ifndef _AT_MODULE_H_
 #define _AT_MODULE_H_
 
-#include "stdint.h"
-
 #define AT_MODULE_DATA_MAX_LEN      1024
 
 typedef struct at_module_data_struct
@@ -27,6 +25,7 @@ enum
     AT_MODULE_REC_STATE_WAIT_DATA = 0,
     AT_MODULE_REC_STATE_HANDLING,
     AT_MODULE_REC_STATE_CONTINUE_RECEIVE,
+    AT_MODULE_REC_STATE_EXIT,
 };
 
 typedef struct at_module_process_struct
@@ -39,13 +38,6 @@ typedef struct at_module_process_struct
     struct at_module_process_struct *prev_process;
     struct at_module_process_struct *next_process;
 } at_module_process_t;
-
-enum
-{
-    REC_DATA_ANALISE_STATE_WAIT_DATA = 0,
-    REC_DATA_ANALISE_STATE_OK,
-    REC_DATA_ANALISE_STATE_ERROR,
-};
 
 extern void at_datahandler_send_data_to_process(at_module_process_t *head_process, at_module_data_t *rec_data);
 

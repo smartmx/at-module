@@ -24,7 +24,18 @@ void at_datahandler_send_data_to_process(at_module_process_t *head_process, at_m
         {
             data_send_to_process_temp->dataHandler(rec_data);           /* 调用不同进程的dataHandler */
         }
-        data_send_to_process_temp = data_send_to_process_temp->next_process;
+        if(rec_data->state == AT_MODULE_REC_STATE_EXIT)
+        {
+            /* 退出线程 */
+            at_module_process_t *wait_for_delete;
+            wait_for_delete = data_send_to_process_temp;
+            data_send_to_process_temp = data_send_to_process_temp->next_process;
+            at_datahandler_delete_process(wait_for_delete);
+        }
+        else
+        {
+            data_send_to_process_temp = data_send_to_process_temp->next_process;
+        }
     }
     while ((data_send_to_process_temp != NULL) && (rec_data->data_rec_index != 0) && (rec_data->state == AT_MODULE_REC_STATE_HANDLING));  //直到进程链表结束
     /* 没有线程认领数据，丢弃 */
@@ -44,6 +55,10 @@ void at_datahandler_add_process(at_module_process_t *head_process, at_module_pro
     }
     while ((add_process_temp->next_process) != NULL)
     {
+        if(wait_for_add == add_process_temp)
+        {
+            return; /* 已经在链表中 */
+        }
         add_process_temp = add_process_temp->next_process;
     }
     add_process_temp->next_process = wait_for_add;
@@ -78,7 +93,6 @@ void at_datahandler_delete_process(at_module_process_t *wait_for_delete)  /* 头
  * 参数6：查找的方向，从前还是从后
  * 返回值：出现的位置，返回0xffff则说明没有找到。
  */
-__HIGH_CODE
 uint16_t at_buffer_match_searcher(unsigned char *det, uint16_t det_len, unsigned char *part, uint16_t part_len, uint8_t max_len, uint8_t direction)
 {
     uint16_t i, j;
