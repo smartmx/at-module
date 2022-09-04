@@ -12,37 +12,46 @@
 
 void at_datahandler_send_data_to_process(at_module_process_t *head_process, at_module_data_t *rec_data)
 {
-    at_module_process_t *data_send_to_process_temp = head_process;
-    rec_data->state = AT_MODULE_REC_STATE_HANDLING;
-    if (data_send_to_process_temp == NULL)      /* 头结点不可为空 */
+    at_module_process_t *data_send_to_process_temp;
+    if (head_process == NULL)      /* 头结点不可为空 */
     {
         return;
     }
-    do
+    rec_data->state = AT_MODULE_REC_STATE_HANDLING;
+    data_send_to_process_temp = head_process;
+    while (1)
     {
         if(data_send_to_process_temp->dataHandler != NULL)
         {
             data_send_to_process_temp->dataHandler(rec_data);           /* 调用不同进程的dataHandler */
         }
-        if(rec_data->state == AT_MODULE_REC_STATE_EXIT)
+        if((rec_data->data_rec_index == 0) || (rec_data->state != AT_MODULE_REC_STATE_HANDLING))
         {
-            /* 退出线程 */
-            at_module_process_t *wait_for_delete;
-            wait_for_delete = data_send_to_process_temp;
+            /* 线程接收了数据 */
+            break;
+        }
+        if(data_send_to_process_temp->next_process != NULL)
+        {
             data_send_to_process_temp = data_send_to_process_temp->next_process;
-            at_datahandler_delete_process(wait_for_delete);
         }
         else
         {
-            data_send_to_process_temp = data_send_to_process_temp->next_process;
+            break;  /* 直到进程链表结束 */
         }
     }
-    while ((data_send_to_process_temp != NULL) && (rec_data->data_rec_index != 0) && (rec_data->state == AT_MODULE_REC_STATE_HANDLING));  //直到进程链表结束
+
     /* 没有线程认领数据，丢弃 */
     if (rec_data->state == AT_MODULE_REC_STATE_HANDLING)
     {
         rec_data->data_rec_index = 0;
         rec_data->state = AT_MODULE_REC_STATE_WAIT_DATA;
+    }
+    else if (rec_data->state == AT_MODULE_REC_STATE_EXIT)
+    {
+        /* 退出线程 */
+        rec_data->data_rec_index = 0;
+        rec_data->state = AT_MODULE_REC_STATE_WAIT_DATA;
+        at_datahandler_delete_process(data_send_to_process_temp);
     }
 }
 
@@ -156,5 +165,5 @@ uint16_t at_buffer_match_searcher(unsigned char *det, uint16_t det_len, unsigned
             }
         }
     }
-    return 0XFFFF;      /* 这是不可能的值。因为part_len在控制中至少2个字节 */
+    return AT_BUFFER_NO_MATCH;      /* 这是不可能的值。因为part_len在控制中至少2个字节 */
 }
