@@ -10,7 +10,7 @@
  */
 #include "at_module.h"
 
-void at_datahandler_send_data_to_process(at_module_process_t *head_process, at_module_data_t *rec_data)
+void at_module_send_data_to_process(at_module_process_t *head_process, at_module_data_t *rec_data)
 {
     at_module_process_t *data_send_to_process_temp;
     if (head_process == NULL)      /* 头结点不可为空 */
@@ -51,11 +51,11 @@ void at_datahandler_send_data_to_process(at_module_process_t *head_process, at_m
         /* 退出线程 */
         rec_data->data_rec_index = 0;
         rec_data->state = AT_MODULE_REC_STATE_WAIT_DATA;
-        at_datahandler_delete_process(data_send_to_process_temp);
+        at_module_delete_process(data_send_to_process_temp);
     }
 }
 
-void at_datahandler_add_process(at_module_process_t *head_process, at_module_process_t *wait_for_add)
+void at_module_add_process(at_module_process_t *head_process, at_module_process_t *wait_for_add)
 {
     at_module_process_t *add_process_temp = head_process;
     if (head_process == NULL)   /* 头结点不可为空 */
@@ -76,7 +76,7 @@ void at_datahandler_add_process(at_module_process_t *head_process, at_module_pro
 }
 
 
-void at_datahandler_delete_process(at_module_process_t *wait_for_delete)  /* 头结点不可删除。 */
+void at_module_delete_process(at_module_process_t *wait_for_delete)  /* 头结点不可删除。 */
 {
     if (wait_for_delete->prev_process == NULL)
     {
@@ -102,7 +102,7 @@ void at_datahandler_delete_process(at_module_process_t *wait_for_delete)  /* 头
  * 参数6：查找的方向，从前还是从后
  * 返回值：出现的位置，返回0xffff则说明没有找到。
  */
-uint16_t at_buffer_match_searcher(unsigned char *det, uint16_t det_len, unsigned char *part, uint16_t part_len, uint8_t max_len, uint8_t direction)
+uint16_t at_module_buffer_match_search(unsigned char *det, uint16_t det_len, unsigned char *part, uint16_t part_len, uint8_t max_len, uint8_t direction)
 {
     uint16_t i, j;
     if (det_len >= part_len)    /* 比较长度 */
