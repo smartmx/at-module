@@ -83,6 +83,11 @@ void at_module_delete_process(at_module_process_t *wait_for_delete)  /* 头结�
         /* 无上一个结点，为NULL，此节点不在链表中，或者为头结点。直接返回。 */
         return;
     }
+    if(wait_for_delete->prev_process->next_process != wait_for_delete)
+    {
+        /* 待删除节点的前一个节点的后一个节点不是待删除节点，则待删除节点不在此链表中 */
+        return;
+    }
     wait_for_delete->prev_process->next_process = wait_for_delete->next_process;    /* 解绑上一个节点 */
     if (wait_for_delete->next_process != NULL)
     {
