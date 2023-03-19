@@ -45,6 +45,8 @@ extern void at_module_add_process(at_module_process_t *head_process, at_module_p
 
 extern void at_module_delete_process(at_module_process_t *wait_for_delete);
 
+extern uint8_t at_module_is_process_running(at_module_process_t *head_process, at_module_process_t *wait_for_add);
+
 extern void at_module_startup_process_Init(at_module_process_t *head_process,  uint8_t sendRepeatTimesSet, void (*dataHandler)(at_module_data_t *rec_data));
 
 #define AT_BUFFER_NO_MATCH         0xffff

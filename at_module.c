@@ -57,14 +57,14 @@ void at_module_send_data_to_process(at_module_process_t *head_process, at_module
 
 void at_module_add_process(at_module_process_t *head_process, at_module_process_t *wait_for_add)
 {
-    at_module_process_t *add_process_temp = head_process;
+    at_module_process_t *add_process_temp = head_process;   /* 头结点不需要比对 */
     if (head_process == NULL)   /* 头结点不可为空 */
     {
         return;
     }
     while ((add_process_temp->next_process) != NULL)
     {
-        if(wait_for_add == add_process_temp)
+        if(wait_for_add == add_process_temp->next_process)
         {
             return; /* 已经在链表中 */
         }
@@ -95,6 +95,25 @@ void at_module_delete_process(at_module_process_t *wait_for_delete)  /* 头结�
     }
     wait_for_delete->prev_process = NULL;
     wait_for_delete->next_process = NULL;
+}
+
+uint8_t at_module_is_process_running(at_module_process_t *head_process, at_module_process_t *wait_for_add)
+{
+    at_module_process_t *search_process_temp = head_process;    /* 头结点不需要比对 */
+    if (head_process == NULL)   /* 头结点不可为空 */
+    {
+        return 0;
+    }
+
+    while ((search_process_temp->next_process) != NULL)
+    {
+        if(wait_for_add == search_process_temp->next_process)
+        {
+            return 1; /* 已经在链表中 */
+        }
+        search_process_temp = search_process_temp->next_process;
+    }
+    return 0;
 }
 
 /*
